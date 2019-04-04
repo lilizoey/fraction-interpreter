@@ -1,0 +1,52 @@
+// Various definitions
+WHITESPACE = _{ ' ' | '\t' | NEWLINE }
+sep = @{ ',' | WHITESPACE }
+
+// Defining atoms
+integer = @{ ASCII_DIGIT+ }
+float = @{ integer ~ '.' ~ numerical }
+exponent = @{ 'e' ~ integer }
+
+number = !{ (integer | float)  ~ exponent? }
+
+varchar = @{ ASCII_ALPHA | '_' }
+varname = { varchar ~ (varchar | ASCII_DIGIT)* }
+
+glyph = @{ ';' ~ ANY }
+
+normal_chars = @{ !('\t' | '\n' | '\\' | '"') ~ ANY }
+escaped_chars = @{ '\\' ~ ('\t' | '\n' | '\\' | '"') }
+string = { '"' ~ (normal_chars | escaped_chars)* ~ '"' }
+
+bin_operator = @{ '+' | '-' | '*' | '/' | '^' | ':' }
+unary_operator = @{'\\' | '\''}
+keyword_func = @{ "if" | "ifelse" }
+
+atom = @{ number | string | glyph | varname }
+
+
+// Expressions
+exprlist = { (expr ~ (sep ~ expr)*)? }
+args_list = { '(' ~ exprlist ~ ')' }
+list = { '[' ~ (expr ~ exprlist ~ ']' }
+
+lambda = { args_list ~ "->" expr }
+macro = { args_list ~ "~>" expr }
+
+unary_operator_expr = { unary_operator? ~ nested_expr }
+bin_operator_expr = { unary_operator_expr ~ (bin_operator ~ bin_operator_expr)* }
+
+funcapply = { (varname | keyword_func) ~ args_list}
+
+// Assignments
+var_assign = { varname ~ '=' ~ expr }
+func_assign = { varname ~ args_list ~ '=' ~ expr}
+
+assignment = { func_assign | var_assign }
+
+// Final
+expr = { operator_expr | lambda | macro | list }
+nested_expr = { funcapply | atom | ('(' ~ expr ~ ')') }
+statement = { assignment | expr }
+
+program = { statement ~ ( sep ~ statement )* }
