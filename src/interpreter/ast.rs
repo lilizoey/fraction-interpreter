@@ -8,6 +8,7 @@ pub enum RuntimeError {
     // expected, actual
     IncorrectNumberOfArgs(usize, usize),
     CannotCallValue(String),
+    Unimplemented(String),
 }
 
 /// An environment usually has a parent environment, unless it is
@@ -67,11 +68,15 @@ struct Closure<'a> {
 
 impl<'a> Closure<'a> {
     fn call(&'a self, args: &'a List<Value<'a>>) -> Result<Value<'a>, RuntimeError> {
+        if self.variadic {
+            return Err(RuntimeError::Unimplemented("Varargs not implemented yet".to_owned()));
+        }
         if self.argnames.len() > args.len() ||
            (self.argnames.len() < args.len() && !self.variadic) {
             return Err(RuntimeError::IncorrectNumberOfArgs(self.argnames.len(), args.len()));
         }
 
+        // TODO: actually make varargs work properly
         let defines: Vec<(&Name, &Value<'a>)> = self.argnames.iter().zip(args.into_iter()).collect();
 
         let new_env = Environment::new(Some(Box::new(&self.env)), defines);
