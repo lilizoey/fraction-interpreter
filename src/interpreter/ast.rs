@@ -1,5 +1,6 @@
 // Alternate implementation of ast?
 use std::collections::HashMap;
+use std::fmt;
 use super::data_structures::{Name, Number};
 use rpds::List;
 
@@ -109,6 +110,21 @@ impl<'a> Value<'a> {
             Value::Function(func) => func.call(args),
             Value::Builtin(func) => (func.func)(args),
             _ => Err(RuntimeError::CannotCallValue("must call a function".to_owned())),
+        }
+    }
+}
+
+
+
+impl<'a> fmt::Display for Value<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), fmt::Error> {
+
+        match self {
+            Value::Number(num) => write!(f, "{}", num),
+            Value::Glyph(glyph) => write!(f, "{}", glyph),
+            Value::List(lst) => write!(f, "{}", lst),
+            Value::Function(func) => write!(f, "function@{:p}", func),
+            Value::Builtin(func) => write!(f, "builtin@{:p}", func),
         }
     }
 }
