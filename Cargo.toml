@@ -1,5 +1,5 @@
 [package]
-name = "discord-bot"
+name = "fraction-interpreter"
 version = "0.1.0"
 authors = ["sayaks <sayaks1@gmail.com>"]
 edition = "2018"

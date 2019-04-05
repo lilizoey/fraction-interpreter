@@ -1,6 +1,6 @@
 // Various definitions
 WHITESPACE = _{ " " | "\t" | NEWLINE }
-sep = @{ "," | WHITESPACE }
+sep = _{ "," }
 
 // Defining atoms
 integer = @{ ASCII_DIGIT+ }
@@ -10,7 +10,7 @@ exponent = @{ "e" ~ integer }
 number = !{ (integer | float)  ~ exponent? }
 
 varchar = @{ ASCII_ALPHA | "_" }
-varname = { varchar ~ (varchar | ASCII_DIGIT)* }
+varname = @{ varchar ~ (varchar | ASCII_DIGIT)* }
 
 glyph = @{ ";" ~ ANY }
 
@@ -46,8 +46,8 @@ func_assign = { varname ~ args_list ~ "=" ~ expr}
 assignment = { func_assign | var_assign }
 
 // Final
-expr = { bin_operator_expr | lambda | lazy | list }
-nested_expr = { funcapply | atom | ("(" ~ expr ~ ")") }
+expr = { funcapply | bin_operator_expr | lambda | lazy | list }
+nested_expr = {  atom | ("(" ~ expr ~ ")") }
 statement = { assignment | expr }
 
 program = { statement ~ ( sep ~ statement )* }

@@ -89,7 +89,8 @@ impl<'a> Closure<'a> {
 
 #[derive(Clone)]
 pub struct Builtin<'a> {
-    func: Box<&'a Fn (&List<Value<'a>>) -> Result<Value<'a>, RuntimeError>>,
+    // TODO: make a constructor
+    pub func: &'a Fn (&List<Value<'a>>) -> Result<Value<'a>, RuntimeError>,
 }
 
 /// A value is something that can be passed around and stored in 
@@ -135,3 +136,10 @@ pub enum Expression<'a> {
     // give a runtime exception.
     Application(Value<'a>, List<Value<'a>>),
 }
+
+pub enum Statement<'a> {
+    Expression(Expression<'a>),
+    Assignment(Name, Value<'a>),
+}
+
+pub type Program<'a> = List<Statement<'a>>;

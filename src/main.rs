@@ -3,7 +3,7 @@ extern crate pest;
 extern crate pest_derive;
 extern crate rpds;
 
-mod interpreter;
+pub mod interpreter;
 
 fn main() {
     println!("Hello, world!");
