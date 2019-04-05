@@ -1,25 +1,25 @@
 // Various definitions
-WHITESPACE = _{ ' ' | '\t' | NEWLINE }
-sep = @{ ',' | WHITESPACE }
+WHITESPACE = _{ " " | "\t" | NEWLINE }
+sep = @{ "," | WHITESPACE }
 
 // Defining atoms
 integer = @{ ASCII_DIGIT+ }
-float = @{ integer ~ '.' ~ numerical }
-exponent = @{ 'e' ~ integer }
+float = @{ integer ~ "." ~ integer }
+exponent = @{ "e" ~ integer }
 
 number = !{ (integer | float)  ~ exponent? }
 
-varchar = @{ ASCII_ALPHA | '_' }
+varchar = @{ ASCII_ALPHA | "_" }
 varname = { varchar ~ (varchar | ASCII_DIGIT)* }
 
-glyph = @{ ';' ~ ANY }
+glyph = @{ ";" ~ ANY }
 
-normal_chars = @{ !('\t' | '\n' | '\\' | '"') ~ ANY }
-escaped_chars = @{ '\\' ~ ('\t' | '\n' | '\\' | '"') }
-string = { '"' ~ (normal_chars | escaped_chars)* ~ '"' }
+normal_chars = @{ !("\t" | "\n" | "\\" | "\"") ~ ANY }
+escaped_chars = @{ "\\" ~ ("\t" | "\n" | "\\" | "\"") }
+string = { "\"" ~ (normal_chars | escaped_chars)* ~ "\"" }
 
-bin_operator = @{ '+' | '-' | '*' | '/' | '^' | ':' }
-unary_operator = @{'\\' | '\''}
+bin_operator = @{ "+" | "-" | "*" | "/" | "^" | ":" }
+unary_operator = @{"\\" | "'"}
 keyword_func = @{ "if" | "ifelse" }
 
 atom = @{ number | string | glyph | varname }
@@ -27,26 +27,27 @@ atom = @{ number | string | glyph | varname }
 
 // Expressions
 exprlist = { (expr ~ (sep ~ expr)*)? }
-args_list = { '(' ~ exprlist ~ ')' }
-list = { '[' ~ (expr ~ exprlist ~ ']' }
+args_list = { "(" ~ exprlist ~ (expr ~ ".")? ~ ")" }
+apply_list = { "(" ~ exprlist ~ ")" }
+list = { "[" ~ exprlist ~ "]" }
 
-lambda = { args_list ~ "->" expr }
-macro = { args_list ~ "~>" expr }
+lambda = { args_list ~ "->" ~ expr }
+lazy = { args_list ~ "~>" ~ expr }
 
 unary_operator_expr = { unary_operator? ~ nested_expr }
 bin_operator_expr = { unary_operator_expr ~ (bin_operator ~ bin_operator_expr)* }
 
-funcapply = { (varname | keyword_func) ~ args_list}
+funcapply = { (varname | keyword_func) ~ apply_list }
 
 // Assignments
-var_assign = { varname ~ '=' ~ expr }
-func_assign = { varname ~ args_list ~ '=' ~ expr}
+var_assign = { varname ~ "=" ~ expr }
+func_assign = { varname ~ args_list ~ "=" ~ expr}
 
 assignment = { func_assign | var_assign }
 
 // Final
-expr = { operator_expr | lambda | macro | list }
-nested_expr = { funcapply | atom | ('(' ~ expr ~ ')') }
+expr = { bin_operator_expr | lambda | lazy | list }
+nested_expr = { funcapply | atom | ("(" ~ expr ~ ")") }
 statement = { assignment | expr }
 
 program = { statement ~ ( sep ~ statement )* }

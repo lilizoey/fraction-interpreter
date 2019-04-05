@@ -10,17 +10,18 @@ pub enum RuntimeError {
     IncorrectNumberOfArgs(usize, usize),
     CannotCallValue(String),
     Unimplemented(String),
+    TypeError(String),
 }
 
 /// An environment usually has a parent environment, unless it is
 /// the top level environment.
-struct Environment<'a> {
+pub struct Environment<'a> {
     parent: Option<Box<&'a Environment<'a>>>,
     mappings: HashMap<Name, Value<'a>>,
 }
 
 impl<'a> Environment<'a> {
-    fn new(parent: Option<Box<&'a Environment<'a>>>, defines: Vec<(&Name, &Value<'a>)>) -> Self {
+    pub fn new(parent: Option<Box<&'a Environment<'a>>>, defines: Vec<(&Name, &Value<'a>)>) -> Self {
         let mut map = HashMap::new();
         for (name, val) in defines {
             map.insert(name.to_owned(), val.clone());
@@ -87,14 +88,14 @@ impl<'a> Closure<'a> {
 }
 
 #[derive(Clone)]
-struct Builtin<'a> {
+pub struct Builtin<'a> {
     func: Box<&'a Fn (&List<Value<'a>>) -> Result<Value<'a>, RuntimeError>>,
 }
 
 /// A value is something that can be passed around and stored in 
 /// variables.
 #[derive(Clone)]
-enum Value<'a> {
+pub enum Value<'a> {
     Number(Number),
     // A glyph is basically a character. A string is a list of 
     // glyphs.
@@ -114,8 +115,6 @@ impl<'a> Value<'a> {
     }
 }
 
-
-
 impl<'a> fmt::Display for Value<'a> {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), fmt::Error> {
 
@@ -129,7 +128,7 @@ impl<'a> fmt::Display for Value<'a> {
     }
 }
 
-enum Expression<'a> {
+pub enum Expression<'a> {
     Atomic(Value<'a>),
     Variable(Name),
     // First one is the function, if it's not a function it will 

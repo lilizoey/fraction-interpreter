@@ -1,6 +1,7 @@
 mod ast;
 mod data_structures;
-
+mod parser;
+mod builtins;
 
 #[cfg(test)]
 mod test {
